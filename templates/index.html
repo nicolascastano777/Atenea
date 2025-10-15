@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="../static/index.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chat de n8n CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/style.css" />
 </head>
 <body>
     <header>
@@ -71,6 +73,15 @@
 
         hamburger.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
+    <!-- Chat de n8n -->
+    <script type="module">
+        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+        createChat({
+            webhookUrl: 'https://apps.alico-sa.com/webhook/6dfbf8bb-a111-43a3-a00f-1c2d6b6379a9/chat'
         });
     </script>
 </body>

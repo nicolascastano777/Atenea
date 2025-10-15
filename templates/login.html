@@ -6,6 +6,7 @@
     <title>Iniciar Sesión</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../static/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
     <script defer src="../static/app.js"></script>
 </head>
 <body>
@@ -38,7 +39,7 @@
             <button type="submit" class="btn">Iniciar Sesión</button>
 
              <!-- Botón para registrarse con Google -->
-             <a href="{{ url_for('google.login') }}">
+             <a href="/google_login/google">
                 <button type="button" class="btn-google">
                     <img src="{{ url_for('static', filename='img/google.png') }}" alt="Google logo" class="google-logo">
                     Inicia sesión con Google
@@ -55,5 +56,14 @@
            
         </form>
     </div>
+
+    <!-- Chat de n8n -->
+    <script type="module">
+        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+        createChat({
+            webhookUrl: 'https://apps.alico-sa.com/webhook/6dfbf8bb-a111-43a3-a00f-1c2d6b6379a9/chat'
+        });
+    </script>
 </body>
 </html>

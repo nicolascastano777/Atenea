@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atenea - {{ usuario }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #212121;
+            color: #ececec;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: #171717;
+            border-right: 1px solid #2f2f2f;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #2f2f2f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .new-chat-btn {
+            background: transparent;
+            border: 1px solid #2f2f2f;
+            color: #ececec;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .new-chat-btn:hover {
+            background-color: #2f2f2f;
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .chat-item {
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            color: #ececec;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .chat-item:hover {
+            background-color: #2f2f2f;
+        }
+
+        .chat-item.active {
+            background-color: #2f2f2f;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid #2f2f2f;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .user-menu:hover {
+            background-color: #2f2f2f;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #8e8ea0;
+        }
+
+        /* Main Chat Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #212121;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #2f2f2f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ececec;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn {
+            background: transparent;
+            border: none;
+            color: #8e8ea0;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background-color: #2f2f2f;
+            color: #ececec;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 32px;
+            color: white;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #ececec;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #8e8ea0;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .suggestion-card {
+            background-color: #2f2f2f;
+            border: 1px solid #3f3f3f;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .suggestion-card:hover {
+            background-color: #3f3f3f;
+            border-color: #10a37f;
+        }
+
+        .suggestion-icon {
+            font-size: 20px;
+            color: #10a37f;
+            margin-bottom: 12px;
+        }
+
+        .suggestion-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #ececec;
+        }
+
+        .suggestion-desc {
+            font-size: 14px;
+            color: #8e8ea0;
+            line-height: 1.4;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 24px;
+            border-top: 1px solid #2f2f2f;
+        }
+
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            background-color: #2f2f2f;
+            border: 1px solid #3f3f3f;
+            border-radius: 12px;
+            padding: 16px 60px 16px 20px;
+            color: #ececec;
+            font-size: 16px;
+            resize: none;
+            min-height: 24px;
+            max-height: 200px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: #10a37f;
+        }
+
+        .chat-input::placeholder {
+            color: #8e8ea0;
+        }
+
+        .send-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #10a37f;
+            border: none;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: white;
+        }
+
+        .send-btn:hover {
+            background: #0d8a6b;
+        }
+
+        .send-btn:disabled {
+            background: #3f3f3f;
+            cursor: not-allowed;
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background: #2f2f2f;
+            border: 1px solid #3f3f3f;
+            border-radius: 8px;
+            min-width: 180px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: all 0.2s;
+            z-index: 1000;
+            margin-bottom: 8px;
+        }
+
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #ececec;
+            transition: background-color 0.2s;
+            font-size: 14px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #3f3f3f;
+        }
+
+        .dropdown-content a:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .dropdown-content a:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .mobile-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s;
+            }
+
+            .mobile-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .chat-header {
+                padding-left: 60px;
+            }
+
+            .menu-toggle {
+                position: absolute;
+                left: 24px;
+                background: transparent;
+                border: none;
+                color: #ececec;
+                font-size: 18px;
+                cursor: pointer;
+            }
+
+            .suggestions {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f3f;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4f4f4f;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
+    
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" onclick="startNewChat()">
+                    <i class="fas fa-plus"></i>
+                    Nueva conversación
+                </button>
+            </div>
+            
+            <div class="chat-history">
+                <div class="chat-item active">
+                    <i class="fas fa-message"></i>
+                    Conversación actual
+                </div>
+                <div class="chat-item">
+                    <i class="fas fa-message"></i>
+                    Consulta anterior
+                </div>
+                <div class="chat-item">
+                    <i class="fas fa-message"></i>
+                    Ayuda con perfil
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="dropdown">
+                    <div class="user-menu">
+                        <div class="user-avatar">{{ usuario[0].upper() }}</div>
+                        <div class="user-info">
+                            <div class="user-name">{{ usuario }}</div>
+                            <div class="user-email">usuario@email.com</div>
+                        </div>
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                    <div class="dropdown-content">
+                        <a href="/mi_perfil"><i class="fas fa-user"></i> Mi Perfil</a>
+                        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-header">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="chat-title">Atenea - Asistente IA</div>
+                <div class="header-actions">
+                    <button class="header-btn" title="Nueva conversación">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="header-btn" title="Configuración">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="welcome-screen">
+                    <div class="welcome-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h1 class="welcome-title">¡Hola, {{ usuario }}!</h1>
+                    <p class="welcome-subtitle">
+                        Soy Atenea, tu asistente personal de inteligencia artificial. Puedo ayudarte con consultas sobre tu cuenta, 
+                        gestión de perfil, y responder cualquier pregunta que tengas.
+                    </p>
+                    
+                    <div class="suggestions">
+                        <div class="suggestion-card" onclick="sendSuggestion('¿Cómo puedo cambiar mi contraseña?')">
+                            <div class="suggestion-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="suggestion-title">Cambiar contraseña</div>
+                            <div class="suggestion-desc">Te ayudo a actualizar tu contraseña de forma segura</div>
+                        </div>
+                        
+                        <div class="suggestion-card" onclick="sendSuggestion('¿Cómo edito mi perfil?')">
+                            <div class="suggestion-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="suggestion-title">Editar perfil</div>
+                            <div class="suggestion-desc">Modifica la información de tu cuenta</div>
+                        </div>
+                        
+                        <div class="suggestion-card" onclick="sendSuggestion('¿Qué funciones están disponibles?')">
+                            <div class="suggestion-icon">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="suggestion-title">Funciones disponibles</div>
+                            <div class="suggestion-desc">Conoce todas las características de la plataforma</div>
+                        </div>
+                        
+                        <div class="suggestion-card" onclick="sendSuggestion('¿Cómo puedo contactar soporte?')">
+                            <div class="suggestion-icon">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <div class="suggestion-title">Contactar soporte</div>
+                            <div class="suggestion-desc">Obtén ayuda adicional de nuestro equipo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea 
+                        class="chat-input" 
+                        placeholder="Escribe tu mensaje aquí..."
+                        rows="1"
+                        onkeydown="handleKeyPress(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <button class="send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function startNewChat() {
+            // Aquí podrías agregar lógica para iniciar una nueva conversación
+            console.log('Nueva conversación iniciada');
+        }
+
+        function sendSuggestion(message) {
+            const input = document.querySelector('.chat-input');
+            input.value = message;
+            sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.querySelector('.chat-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                console.log('Enviando mensaje:', message);
+                // Aquí el chat de n8n manejará el mensaje
+                input.value = '';
+                autoResize(input);
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+        }
+
+        // Cerrar sidebar en móvil al hacer clic fuera
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.querySelector('.mobile-overlay').classList.remove('active');
+            }
+        });
+    </script>
+
+    <!-- Chat de n8n -->
+    <script type="module">
+        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+        createChat({
+            webhookUrl: 'https://apps.alico-sa.com/webhook/6dfbf8bb-a111-43a3-a00f-1c2d6b6379a9/chat'
+        });
+    </script>
+</body>
+</html>
