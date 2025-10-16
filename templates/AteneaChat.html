@@ -149,7 +149,7 @@
             border-bottom: 1px solid #2f2f2f;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
         }
 
         .chat-title {
@@ -313,8 +313,17 @@
         }
 
         .message.assistant .message-avatar {
-            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            background: #000000;
             color: white;
+            overflow: hidden;
+            padding: 3px;
+        }
+
+        .message.assistant .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
         }
 
         .message-content {
@@ -619,24 +628,13 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="chat-header">
-                <button class="menu-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
                 <div class="chat-title">Atenea - Asistente IA</div>
-                <div class="header-actions">
-                    <button class="header-btn" title="Nueva conversación">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                    <button class="header-btn" title="Configuración">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                </div>
             </div>
 
             <div class="chat-container" id="chatContainer">
                 <div class="welcome-screen" id="welcomeScreen">
                     <div class="welcome-icon">
-                        <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Atenehaz que el fionde de la imagen sea negroa Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                        <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Atenea Logo" style="width: 100%; height: 100%; object-fit: contain;">
                     </div>
                     <h1 class="welcome-title">¡Hola, {{ usuario }}!</h1>
                     <p class="welcome-subtitle">
@@ -872,7 +870,16 @@ Respuesta del servidor: ${responseText}`);
             
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
-            avatar.textContent = type === 'user' ? '{{ usuario[0].upper() }}' : 'A';
+            
+            if (type === 'user') {
+                avatar.textContent = '{{ usuario[0].upper() }}';
+            } else {
+                // Para el asistente, usar la imagen del logo
+                const img = document.createElement('img');
+                img.src = '{{ url_for("static", filename="images/logo2.png") }}';
+                img.alt = 'Atenea';
+                avatar.appendChild(img);
+            }
             
             const messageContent = document.createElement('div');
             messageContent.className = `message-content ${isError ? 'error-message' : ''}`;
@@ -908,7 +915,12 @@ Respuesta del servidor: ${responseText}`);
             
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
-            avatar.textContent = 'A';
+            
+            // Usar la imagen del logo para el avatar del asistente
+            const img = document.createElement('img');
+            img.src = '{{ url_for("static", filename="images/logo2.png") }}';
+            img.alt = 'Atenea';
+            avatar.appendChild(img);
             
             const typingContent = document.createElement('div');
             typingContent.className = 'typing-indicator';
