@@ -10,15 +10,23 @@ Aplicación web de chat con inteligencia artificial integrada con n8n y Google G
 - ✅ **Integración con n8n** webhook
 - ✅ **Base de datos SQLite** para usuarios
 - ✅ **Registro con email/contraseña**
+- ✅ **Logo personalizado** en toda la aplicación
+- ✅ **Diseño azul** consistente
 
 ## 🚀 Instalación
 
-1. **Instalar dependencias**
+1. **Clonar el repositorio**
+```bash
+git clone https://github.com/nicolascastano777/Atenea.git
+cd Atenea
+```
+
+2. **Instalar dependencias**
 ```bash
 pip install flask flask-bcrypt requests
 ```
 
-2. **Ejecutar la aplicación**
+3. **Ejecutar la aplicación**
 ```bash
 python app.py
 ```
@@ -30,6 +38,9 @@ Atenea/
 ├── app.py                          # Aplicación Flask principal
 ├── usuarios.db                     # Base de datos SQLite
 ├── client_secret_*.json           # Credenciales Google OAuth
+├── static/
+│   └── images/
+│       └── logo2.png              # Logo de Atenea
 └── templates/
     ├── AteneaChat.html            # Interfaz principal del chat
     ├── login.html                 # Página de inicio de sesión
