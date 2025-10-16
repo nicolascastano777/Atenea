@@ -8,6 +8,73 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Variables CSS para temas */
+        :root {
+            /* Tema oscuro (por defecto) */
+            --bg-primary: #212121;
+            --bg-secondary: #171717;
+            --bg-tertiary: #2f2f2f;
+            --bg-quaternary: #3f3f3f;
+            --text-primary: #ececec;
+            --text-secondary: #8e8ea0;
+            --text-muted: #b0b0b0;
+            --border-color: #2f2f2f;
+            --border-hover: #3f3f3f;
+            --accent-color: #4FC3F7;
+            --accent-hover: #2196F3;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --error-bg: #4a1d1d;
+            --error-border: #cc4444;
+            --error-text: #ff6b6b;
+            --success-bg: #1d4a2a;
+            --success-border: #44cc66;
+            --success-text: #6bff8b;
+        }
+
+        /* Tema claro */
+        [data-theme="light"] {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e0e0e0;
+            --bg-quaternary: #d0d0d0;
+            --text-primary: #212121;
+            --text-secondary: #666666;
+            --text-muted: #888888;
+            --border-color: #e0e0e0;
+            --border-hover: #d0d0d0;
+            --accent-color: #1976D2;
+            --accent-hover: #1565C0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --error-bg: #ffebee;
+            --error-border: #e57373;
+            --error-text: #d32f2f;
+            --success-bg: #e8f5e8;
+            --success-border: #81c784;
+            --success-text: #2e7d32;
+        }
+
+        /* Botón de cambio de tema */
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--accent-color);
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-quaternary);
+            transform: scale(1.1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,10 +83,11 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #212121;
-            color: #ececec;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             height: 100vh;
             overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .app-container {
@@ -30,16 +98,16 @@
         /* Sidebar */
         .sidebar {
             width: 260px;
-            background-color: #171717;
-            border-right: 1px solid #2f2f2f;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, background-color 0.3s ease;
         }
 
         .sidebar-header {
             padding: 16px;
-            border-bottom: 1px solid #2f2f2f;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -47,8 +115,8 @@
 
         .new-chat-btn {
             background: transparent;
-            border: 1px solid #2f2f2f;
-            color: #ececec;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
             padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
@@ -57,11 +125,12 @@
             gap: 8px;
             font-size: 14px;
             transition: all 0.2s;
-            width: 100%;
+            flex: 1;
+            margin-right: 10px;
         }
 
         .new-chat-btn:hover {
-            background-color: #2f2f2f;
+            background-color: var(--bg-tertiary);
         }
 
         .chat-history {
@@ -75,7 +144,7 @@
             border-radius: 8px;
             cursor: pointer;
             margin-bottom: 4px;
-            color: #ececec;
+            color: var(--text-primary);
             transition: background-color 0.2s;
             display: flex;
             align-items: center;
@@ -84,16 +153,16 @@
         }
 
         .chat-item:hover {
-            background-color: #2f2f2f;
+            background-color: var(--bg-tertiary);
         }
 
         .chat-item.active {
-            background-color: #2f2f2f;
+            background-color: var(--bg-tertiary);
         }
 
         .sidebar-footer {
             padding: 16px;
-            border-top: 1px solid #2f2f2f;
+            border-top: 1px solid var(--border-color);
         }
 
         .user-menu {
@@ -107,7 +176,7 @@
         }
 
         .user-menu:hover {
-            background-color: #2f2f2f;
+            background-color: var(--bg-tertiary);
         }
 
         .user-avatar {
@@ -134,7 +203,7 @@
 
         .user-email {
             font-size: 12px;
-            color: #8e8ea0;
+            color: var(--text-secondary);
         }
 
         /* Main Chat Area */
@@ -142,12 +211,13 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: #212121;
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease;
         }
 
         .chat-header {
             padding: 16px 24px;
-            border-bottom: 1px solid #2f2f2f;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -156,7 +226,7 @@
         .chat-title {
             font-size: 18px;
             font-weight: 600;
-            color: #ececec;
+            color: var(--text-primary);
         }
 
         .header-actions {
@@ -168,7 +238,7 @@
         .header-btn {
             background: transparent;
             border: none;
-            color: #8e8ea0;
+            color: var(--text-secondary);
             padding: 8px;
             border-radius: 6px;
             cursor: pointer;
@@ -176,8 +246,8 @@
         }
 
         .header-btn:hover {
-            background-color: #2f2f2f;
-            color: #ececec;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
         }
 
         .chat-container {
@@ -222,12 +292,12 @@
             font-size: 32px;
             font-weight: 600;
             margin-bottom: 16px;
-            color: #ececec;
+            color: var(--text-primary);
         }
 
         .welcome-subtitle {
             font-size: 16px;
-            color: #8e8ea0;
+            color: var(--text-secondary);
             margin-bottom: 32px;
             line-height: 1.5;
         }
@@ -241,8 +311,8 @@
         }
 
         .suggestion-card {
-            background-color: #2f2f2f;
-            border: 1px solid #3f3f3f;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 20px;
             cursor: pointer;
@@ -251,13 +321,13 @@
         }
 
         .suggestion-card:hover {
-            background-color: #3f3f3f;
-            border-color: #4FC3F7;
+            background-color: var(--bg-quaternary);
+            border-color: var(--accent-color);
         }
 
         .suggestion-icon {
             font-size: 20px;
-            color: #4FC3F7;
+            color: var(--accent-color);
             margin-bottom: 12px;
         }
 
@@ -265,12 +335,12 @@
             font-size: 16px;
             font-weight: 500;
             margin-bottom: 8px;
-            color: #ececec;
+            color: var(--text-primary);
         }
 
         .suggestion-desc {
             font-size: 14px;
-            color: #8e8ea0;
+            color: var(--text-secondary);
             line-height: 1.4;
         }
 
@@ -328,19 +398,20 @@
         }
 
         .message-content {
-            background-color: #2f2f2f;
-            border: 1px solid #3f3f3f;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 16px;
             max-width: 70%;
             word-wrap: break-word;
             white-space: pre-wrap;
             line-height: 1.5;
+            transition: all 0.3s ease;
         }
 
         .file-attachment {
-            background-color: #2f2f2f;
-            border: 1px solid #3f3f3f;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 8px 12px;
             margin-top: 8px;
@@ -348,7 +419,7 @@
             align-items: center;
             gap: 8px;
             font-size: 14px;
-            color: #4FC3F7;
+            color: var(--accent-color);
         }
 
         .file-attachment .file-icon {
@@ -358,7 +429,7 @@
         .disclaimer {
             text-align: center;
             padding: 12px 24px 16px 24px;
-            color: #8e8ea0;
+            color: var(--text-secondary);
             font-size: 13px;
             line-height: 1.4;
             max-width: 800px;
@@ -372,7 +443,7 @@
             transform: translateY(-50%) !important;
             background: transparent;
             border: none;
-            color: #8e8ea0;
+            color: var(--text-secondary);
             font-size: 18px;
             cursor: pointer;
             padding: 8px;
@@ -382,8 +453,8 @@
         }
 
         .voice-btn:hover {
-            background-color: #3f3f3f;
-            color: #4FC3F7;
+            background-color: var(--bg-quaternary);
+            color: var(--accent-color);
         }
 
         .voice-btn.recording {
@@ -487,7 +558,7 @@
         /* Input Area */
         .input-area {
             padding: 24px;
-            border-top: 1px solid #2f2f2f;
+            border-top: 1px solid var(--border-color);
         }
 
         .input-container {
@@ -507,7 +578,7 @@
             transform: translateY(-50%) !important;
             background: transparent;
             border: none;
-            color: #8e8ea0;
+            color: var(--text-secondary);
             font-size: 18px;
             cursor: pointer;
             padding: 8px;
@@ -517,8 +588,8 @@
         }
 
         .attach-btn:hover {
-            background-color: #3f3f3f;
-            color: #4FC3F7;
+            background-color: var(--bg-quaternary);
+            color: var(--accent-color);
         }
 
         .file-preview {
@@ -574,11 +645,11 @@
 
         .chat-input {
             width: 100% !important;
-            background-color: #2f2f2f;
-            border: 1px solid #3f3f3f;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 16px 140px 16px 50px !important;
-            color: #ececec;
+            color: var(--text-primary);
             font-size: 16px;
             resize: none;
             min-height: 24px;
@@ -588,11 +659,11 @@
         }
 
         .chat-input:focus {
-            border-color: #4FC3F7;
+            border-color: var(--accent-color);
         }
 
         .chat-input::placeholder {
-            color: #8e8ea0;
+            color: var(--text-secondary);
         }
 
         .send-btn {
@@ -600,7 +671,7 @@
             right: 12px !important;
             top: 50% !important;
             transform: translateY(-50%) !important;
-            background: #4FC3F7;
+            background: var(--accent-color);
             border: none;
             border-radius: 8px;
             width: 32px;
@@ -615,11 +686,11 @@
         }
 
         .send-btn:hover {
-            background: #2196F3;
+            background: var(--accent-hover);
         }
 
         .send-btn:disabled {
-            background: #3f3f3f;
+            background: var(--bg-quaternary);
             cursor: not-allowed;
         }
 
@@ -757,6 +828,9 @@
                 <button class="new-chat-btn" onclick="startNewChat()">
                     <i class="fas fa-plus"></i>
                     Nueva conversación
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                    <span id="themeIcon">🌙</span>
                 </button>
             </div>
             
@@ -1429,10 +1503,37 @@ Respuesta del servidor: ${responseText}`);
             img.src = '{{ url_for("static", filename="images/logo.png") }}';
         }
 
+        // Funciones para manejo de tema
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const themeIcon = document.getElementById('themeIcon');
+            themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcon(theme);
+        }
+
         // Inicializar chat
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Chat Atenea inicializado');
             console.log('Webhook URL:', WEBHOOK_URL);
+            
+            // Inicializar tema
+            initTheme();
             
             // Crear favicon con fondo negro
             createBlackBackgroundFavicon();
