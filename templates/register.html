@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atenea - Registro</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}" id="favicon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -244,6 +245,59 @@
             </div>
         </form>
     </div>
+
+    <script>
+        // Crear favicon circular con fondo negro
+        function createBlackBackgroundFavicon() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 32;
+            canvas.height = 32;
+            
+            // Crear un círculo negro de fondo
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(16, 16, 16, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Cargar y dibujar el logo
+            const img = new Image();
+            img.onload = function() {
+                // Crear un clipping circular para el logo
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(16, 16, 14, 0, Math.PI * 2);
+                ctx.clip();
+                
+                // Dibujar la imagen centrada dentro del círculo
+                const size = 28;
+                const x = (32 - size) / 2;
+                const y = (32 - size) / 2;
+                ctx.drawImage(img, x, y, size, size);
+                
+                ctx.restore();
+                
+                // Convertir a dataURL y actualizar favicon
+                const faviconUrl = canvas.toDataURL('image/png');
+                const favicon = document.getElementById('favicon');
+                if (favicon) {
+                    favicon.href = faviconUrl;
+                } else {
+                    const newFavicon = document.createElement('link');
+                    newFavicon.rel = 'icon';
+                    newFavicon.type = 'image/png';
+                    newFavicon.href = faviconUrl;
+                    document.head.appendChild(newFavicon);
+                }
+            };
+            img.src = '{{ url_for("static", filename="images/logo.png") }}';
+        }
+
+        // Crear favicon al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            createBlackBackgroundFavicon();
+        });
+    </script>
 </body>
 </html>
 
