@@ -333,6 +333,25 @@
             padding: 16px;
             max-width: 70%;
             word-wrap: break-word;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .file-attachment {
+            background-color: #2f2f2f;
+            border: 1px solid #3f3f3f;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #4FC3F7;
+        }
+
+        .file-attachment .file-icon {
+            font-size: 16px;
         }
 
         .message.user .message-content {
@@ -414,12 +433,71 @@
             position: relative;
         }
 
+        .file-input {
+            display: none;
+        }
+
+        .attach-btn {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #8e8ea0;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .attach-btn:hover {
+            background-color: #3f3f3f;
+            color: #4FC3F7;
+        }
+
+        .file-preview {
+            display: none;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #2f2f2f;
+            border: 1px solid #3f3f3f;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #ececec;
+        }
+
+        .file-preview.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-preview .file-info {
+            flex: 1;
+        }
+
+        .file-preview .remove-file {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+
+        .file-preview .remove-file:hover {
+            background-color: #4a1d1d;
+            border-radius: 4px;
+        }
+
         .chat-input {
             width: 100%;
             background-color: #2f2f2f;
             border: 1px solid #3f3f3f;
             border-radius: 12px;
-            padding: 16px 60px 16px 20px;
+            padding: 16px 60px 16px 50px;
             color: #ececec;
             font-size: 16px;
             resize: none;
@@ -638,8 +716,9 @@
                     </div>
                     <h1 class="welcome-title">¡Hola, {{ usuario }}!</h1>
                     <p class="welcome-subtitle">
-                        Soy Atenea, tu asistente personal de inteligencia artificial. Puedo ayudarte con consultas sobre tu cuenta, 
-                        gestión de perfil, y responder cualquier pregunta que tengas.
+                        Soy Atenea, tu asistente de inteligencia artificial. Estoy aquí para ayudarte con preguntas generales, 
+                        análisis de texto, resolución de problemas, explicaciones técnicas, y cualquier consulta que tengas. 
+                        ¡Pregúntame lo que necesites!
                     </p>
                 </div>
                 
@@ -650,6 +729,20 @@
 
             <div class="input-area">
                 <div class="input-container">
+                    <div class="file-preview" id="filePreview">
+                        <div class="file-info" id="fileInfo">
+                            <span class="file-name"></span>
+                            <span class="file-size"></span>
+                        </div>
+                        <button class="remove-file" onclick="removeFile()">×</button>
+                    </div>
+                    
+                    <input type="file" id="fileInput" class="file-input" accept="image/*,.pdf,.doc,.docx,.txt,.json,.csv,.xls,.xlsx" onchange="handleFileSelect(event)">
+                    
+                    <button class="attach-btn" onclick="document.getElementById('fileInput').click()">
+                        📎
+                    </button>
+                    
                     <textarea 
                         class="chat-input" 
                         placeholder="Escribe tu mensaje aquí..."
@@ -669,6 +762,58 @@
         const WEBHOOK_URL = 'https://apps.alico-sa.com/webhook/6dfbf8bb-a111-43a3-a00f-1c2d6b6379a9/chat';
         let conversationId = null;
         let isWaitingForResponse = false;
+        let selectedFile = null;
+
+        // Funciones para manejo de archivos
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Verificar tamaño máximo (10MB)
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (file.size > maxSize) {
+                    alert('El archivo es demasiado grande. El tamaño máximo permitido es 10MB.');
+                    return;
+                }
+
+                selectedFile = file;
+                showFilePreview(file);
+            }
+        }
+
+        function showFilePreview(file) {
+            const preview = document.getElementById('filePreview');
+            const fileName = preview.querySelector('.file-name');
+            const fileSize = preview.querySelector('.file-size');
+            
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            
+            preview.classList.add('show');
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            const preview = document.getElementById('filePreview');
+            preview.classList.remove('show');
+            document.getElementById('fileInput').value = '';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -703,7 +848,7 @@
             const input = document.querySelector('.chat-input');
             const message = input.value.trim();
             
-            if (!message || isWaitingForResponse) return;
+            if ((!message && !selectedFile) || isWaitingForResponse) return;
             
             // Limpiar input
             input.value = '';
@@ -712,8 +857,14 @@
             // Ocultar pantalla de bienvenida y mostrar mensajes
             hideWelcomeScreen();
             
+            // Preparar el mensaje a mostrar
+            let displayText = message;
+            if (selectedFile) {
+                displayText = (message ? message + '\n\n' : '') + `📎 ${selectedFile.name}`;
+            }
+            
             // Mostrar mensaje del usuario
-            displayMessage(message, 'user');
+            displayMessage(displayText, 'user');
             
             // Mostrar indicador de escritura
             showTypingIndicator();
@@ -721,7 +872,7 @@
             try {
                 isWaitingForResponse = true;
                 
-                // Formato específico para n8n workflow con AI Agent
+                // Preparar el cuerpo de la petición
                 const requestBody = {
                     chatInput: message,
                     message: message,
@@ -729,6 +880,32 @@
                     sessionId: conversationId || generateSessionId(),
                     timestamp: new Date().toISOString()
                 };
+
+                // Si hay un archivo seleccionado, agregarlo al mensaje
+                if (selectedFile) {
+                    try {
+                        const fileData = await readFileAsBase64(selectedFile);
+                        requestBody.file = {
+                            name: selectedFile.name,
+                            type: selectedFile.type,
+                            size: selectedFile.size,
+                            data: fileData
+                        };
+                        requestBody.hasAttachment = true;
+                        
+                        // Agregar información del archivo al mensaje
+                        const fileInfo = `\n\n[Archivo adjunto: ${selectedFile.name} (${formatFileSize(selectedFile.size)})]`;
+                        requestBody.chatInput = (message || 'Archivo adjunto') + fileInfo;
+                        requestBody.message = (message || 'Archivo adjunto') + fileInfo;
+                        
+                    } catch (fileError) {
+                        console.error('Error al procesar archivo:', fileError);
+                        hideTypingIndicator();
+                        displayMessage('Error al procesar el archivo. Por favor intenta de nuevo.', 'bot');
+                        isWaitingForResponse = false;
+                        return;
+                    }
+                }
                 
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
@@ -793,6 +970,11 @@ Respuesta del servidor: ${responseText}`);
                     displayMessage(assistantResponse, 'assistant');
                 } else {
                     displayMessage('Recibí una respuesta pero está vacía. Verifica la configuración del workflow.', 'assistant', true);
+                }
+                
+                // Limpiar archivo seleccionado después del envío exitoso
+                if (selectedFile) {
+                    removeFile();
                 }
                 
             } catch (error) {
@@ -883,7 +1065,26 @@ Respuesta del servidor: ${responseText}`);
             
             const messageContent = document.createElement('div');
             messageContent.className = `message-content ${isError ? 'error-message' : ''}`;
-            messageContent.innerHTML = formatMessage(content);
+            
+            // Procesar contenido para archivos adjuntos
+            let processedContent = content;
+            if (type === 'user' && content.includes('📎')) {
+                const parts = content.split('📎');
+                if (parts.length > 1) {
+                    const textPart = parts[0].trim();
+                    const filePart = parts[1].trim();
+                    
+                    processedContent = textPart;
+                    if (filePart) {
+                        processedContent += `<div class="file-attachment">
+                            <span class="file-icon">📎</span>
+                            <span>${filePart}</span>
+                        </div>`;
+                    }
+                }
+            }
+            
+            messageContent.innerHTML = formatMessage(processedContent);
             
             const messageTime = document.createElement('div');
             messageTime.className = 'message-time';
