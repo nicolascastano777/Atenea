@@ -219,11 +219,87 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-5px); }
         }
+
+        /* Estilos para la sección de bienvenida */
+        .welcome-section {
+            text-align: center;
+            margin: 25px 0 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(79, 195, 247, 0.1), rgba(33, 150, 243, 0.1));
+            border-radius: 12px;
+            border: 1px solid rgba(79, 195, 247, 0.2);
+        }
+
+        .welcome-title {
+            color: #4FC3F7;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(79, 195, 247, 0.3);
+        }
+
+        .welcome-description {
+            color: #b0b0b0;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background-color: rgba(47, 47, 47, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(79, 195, 247, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background-color: rgba(79, 195, 247, 0.1);
+            border-color: rgba(79, 195, 247, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .feature-text {
+            color: #d0d0d0;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            .features-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-title {
+                font-size: 18px;
+            }
+            
+            .welcome-description {
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <form class="login-form" action="/login" method="POST">
+        <div class="login-form">
             <h2>
                 <div class="logo-icon">
                     <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Atenea Logo">
@@ -242,17 +318,34 @@
             {% endif %}
             {% endwith %}
 
-            <div class="form-group">
-                <span class="icon">👤</span>
-                <input type="text" name="email" placeholder="Usuario Epicor" required>
+            <!-- Descripción atractiva de Atenea -->
+            <div class="welcome-section">
+                <h3 class="welcome-title">Tu Asistente Inteligente</h3>
+                <p class="welcome-description">
+                    Descubre el poder de la inteligencia artificial con Atenea. 
+                    Tu compañero perfecto para conversaciones inteligentes, 
+                    análisis de documentos y mucho más.
+                </p>
+                
+                <div class="features-list">
+                    <div class="feature-item">
+                        <span class="feature-icon">🤖</span>
+                        <span class="feature-text">Chat inteligente con IA</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">📄</span>
+                        <span class="feature-text">Análisis de documentos</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🎤</span>
+                        <span class="feature-text">Reconocimiento de voz</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🔒</span>
+                        <span class="feature-text">Acceso seguro</span>
+                    </div>
+                </div>
             </div>
-
-            <div class="form-group">
-                <span class="icon">🔒</span>
-                <input type="password" name="contrasena" placeholder="Contraseña Epicor" required>
-            </div>
-
-            <button type="submit" class="btn">Iniciar Sesión</button>
 
             <!-- Botón para registrarse con Google -->
             <a href="/google_login/google" class="btn-google">
@@ -268,7 +361,7 @@
             <div class="signup-link">
                 <p>¿No tienes cuenta? <a href="/registro" class="signup-text">¡Crea una ahora!</a></p>
             </div>
-        </form>
+        </div>
     </div>
 
     <script>

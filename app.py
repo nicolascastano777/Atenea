@@ -43,108 +43,7 @@ GOOGLE_CLIENT_ID = '275736512925-shv6n8co3ev88suae6b0ihoo2ijqjbq3.apps.googleuse
 GOOGLE_CLIENT_SECRET = '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'
 GOOGLE_REDIRECT_URI = 'http://127.0.0.1:5000/google_login/google/authorized'
 
-# Configuración de Epicor SaaS
-EPICOR_TOKEN_RESOURCE_URL = "https://centralusdtapp73.epicorsaas.com/SaaS5333/TokenResource.svc/"
-EPICOR_TI_USEREMP_URL = "https://centralusdtapp73.epicorsaas.com/SaaS5333/api/v2/odata/SaaS5333/Erp.BO.UserFileSvc/UserFiles"
 
-def authenticate_epicor(username, password):
-    """
-    Función para autenticar con Epicor SaaS usando Basic Authentication
-    Basado en el ejemplo proporcionado del TokenResource
-    """
-    import base64
-    
-    try:
-        # Preparar el payload con las credenciales
-        payload = {
-            "username": username,
-            "password": password
-        }
-        
-        # Crear token Basic Authentication
-        token = base64.b64encode(f'{username}:{password}'.encode()).decode()
-        headers = {
-            'Authorization': f'Basic {token}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-        
-        # Realizar la petición al servicio de tokens de Epicor
-        response = requests.post(EPICOR_TOKEN_RESOURCE_URL, json=payload, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            # Si la autenticación es exitosa, Epicor devuelve un token
-            try:
-                token_data = response.json()
-                access_token = token_data.get('AccessToken') or token_data.get('access_token') or token_data.get('token', '')
-                
-                return {
-                    'success': True,
-                    'token': access_token,
-                    'user_info': token_data,
-                    'username': username
-                }
-            except ValueError:
-                # Si no es JSON válido, pero el status es 200, considerar éxito
-                return {
-                    'success': True,
-                    'token': response.text.strip(),
-                    'user_info': {'raw_response': response.text},
-                    'username': username
-                }
-        elif response.status_code == 401:
-            return {
-                'success': False,
-                'error': 'Credenciales de Epicor inválidas'
-            }
-        else:
-            return {
-                'success': False,
-                'error': f'Error de autenticación Epicor: {response.status_code}'
-            }
-            
-    except requests.exceptions.Timeout:
-        return {
-            'success': False,
-            'error': 'Tiempo de espera agotado conectando con Epicor'
-        }
-    except requests.exceptions.ConnectionError:
-        return {
-            'success': False,
-            'error': 'Error de conexión con servidor Epicor'
-        }
-    except requests.exceptions.RequestException as e:
-        return {
-            'success': False,
-            'error': f'Error de conexión: {str(e)}'
-        }
-    except Exception as e:
-        return {
-            'success': False,
-            'error': f'Error inesperado: {str(e)}'
-        }
-
-def get_epicor_user_info(username=None, access_token=None):
-    """
-    Función para obtener información del usuario/empleado desde Epicor
-    """
-    try:
-        headers = {}
-        if access_token:
-            headers['Authorization'] = f'Bearer {access_token}'
-        
-        # Construir la URL con el parámetro Chatbot si hay username
-        url = EPICOR_TI_USEREMP_URL
-        if username:
-            url += f'/?Chatbot={username}'
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return None
-    except Exception:
-        return None
 
 @app.route('/google_login/google')
 def google_login():
@@ -289,89 +188,9 @@ def registro():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user_input = request.form['email']  # Puede ser usuario o email
-        contrasena = request.form['contrasena']
-
-        # Determinar si es un email (contiene @) o usuario de Epicor
-        is_email = '@' in user_input
-        
-        # Primero, intentar autenticación con Epicor SaaS
-        epicor_result = authenticate_epicor(user_input, contrasena)
-        
-        if epicor_result['success']:
-            # Si la autenticación con Epicor es exitosa
-            access_token = epicor_result.get('token', '')
-            
-            # Intentar obtener información adicional del usuario desde Epicor
-            user_info_epicor = get_epicor_user_info(user_input, access_token)
-            
-            conn = get_db_connection()
-            
-            # Buscar usuario por email si es email, por usuario si no es email
-            if is_email:
-                user = conn.execute('SELECT * FROM usuarios WHERE email = ?', (user_input,)).fetchone()
-                email_to_store = user_input
-                usuario_name = user_input.split('@')[0]
-            else:
-                # Para usuarios de Epicor, buscar por nombre de usuario
-                user = conn.execute('SELECT * FROM usuarios WHERE usuario = ?', (user_input,)).fetchone()
-                email_to_store = f"{user_input}@epicor.local"  # Email ficticio para usuarios Epicor
-                usuario_name = user_input
-            
-            if not user:
-                # Verificar si el nombre de usuario ya existe y modificarlo si es necesario
-                existing_username = conn.execute('SELECT * FROM usuarios WHERE usuario = ?', (usuario_name,)).fetchone()
-                if existing_username:
-                    counter = 1
-                    original_usuario = usuario_name
-                    while existing_username:
-                        usuario_name = f"{original_usuario}{counter}"
-                        existing_username = conn.execute('SELECT * FROM usuarios WHERE usuario = ?', (usuario_name,)).fetchone()
-                        counter += 1
-                
-                # Insertar usuario en la base de datos (sin contraseña local ya que usa Epicor)
-                conn.execute('''
-                    INSERT INTO usuarios (usuario, email, contrasena) 
-                    VALUES (?, ?, ?)
-                ''', (usuario_name, email_to_store, None))  # contraseña null para usuarios de Epicor
-                conn.commit()
-                
-                # Obtener el usuario recién creado
-                if is_email:
-                    user = conn.execute('SELECT * FROM usuarios WHERE email = ?', (email_to_store,)).fetchone()
-                else:
-                    user = conn.execute('SELECT * FROM usuarios WHERE usuario = ?', (usuario_name,)).fetchone()
-            
-            conn.close()
-            
-            # Iniciar sesión con el usuario
-            session['usuario'] = user['usuario']
-            session['auth_method'] = 'epicor'  # Marcar método de autenticación
-            session['epicor_token'] = access_token  # Guardar token de Epicor
-            session['epicor_user_info'] = user_info_epicor  # Guardar información adicional de Epicor
-            flash("¡Inicio de sesión exitoso con Epicor!", "success")
-            return redirect(url_for('pagina_principal'))
-        
-        else:
-            # Si falla la autenticación con Epicor, intentar autenticación local solo si es email
-            if is_email:
-                conn = get_db_connection()
-                user = conn.execute('SELECT * FROM usuarios WHERE email = ?', (user_input,)).fetchone()
-                conn.close()
-                
-                # Verificar si las credenciales locales son correctas
-                if user and user['contrasena'] and bcrypt.check_password_hash(user['contrasena'], contrasena):
-                    session['usuario'] = user['usuario']
-                    session['auth_method'] = 'local'  # Marcar método de autenticación
-                    flash("¡Inicio de sesión exitoso!", "success")
-                    return redirect(url_for('pagina_principal'))
-            
-            # Si ambas autenticaciones fallan o no es email válido para cuenta local
-            if is_email:
-                flash("Email o contraseña incorrectos. Verifica tus credenciales de Epicor o tu cuenta local.", "error")
-            else:
-                flash("Usuario o contraseña de Epicor incorrectos.", "error")
-            return render_template('login.html')
+        # En caso de que aún se envíe un POST desde el formulario,
+        # simplemente redirigir a Google OAuth
+        return redirect(url_for('google_login'))
 
     return render_template('login.html')
 
@@ -401,7 +220,6 @@ def mi_perfil():
     
     # Mapear método de autenticación a texto legible
     auth_method_text = {
-        'epicor': 'Epicor SaaS',
         'google': 'Google OAuth',
         'local': 'Cuenta Local',
         'unknown': 'Desconocido'
@@ -423,8 +241,6 @@ def mi_perfil():
 def logout():
     session.pop('usuario', None)
     session.pop('auth_method', None)
-    session.pop('epicor_token', None)
-    session.pop('epicor_user_info', None)
     flash("Sesión cerrada exitosamente.", "success")
     return redirect(url_for('login'))
 
