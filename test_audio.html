@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Audio Recording</title>
+</head>
+<body>
+    <h1>Prueba de Grabación de Audio</h1>
+    <button id="recordBtn">🎤 Grabar</button>
+    <button id="stopBtn" disabled>⏹️ Detener</button>
+    <audio id="audioPlayer" controls style="display:none;"></audio>
+    
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        
+        document.getElementById('recordBtn').onclick = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    document.getElementById('audioPlayer').src = audioUrl;
+                    document.getElementById('audioPlayer').style.display = 'block';
+                };
+                
+                mediaRecorder.start();
+                document.getElementById('recordBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                audioChunks = [];
+                
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+        
+        document.getElementById('stopBtn').onclick = () => {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            document.getElementById('recordBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Speech Recognition</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        #output { border: 1px solid #ccc; padding: 10px; margin: 10px 0; min-height: 100px; }
+        .recording { background-color: #ff4444; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Test de Reconocimiento de Voz</h1>
+    <button id="startBtn">🎤 Iniciar Reconocimiento</button>
+    <button id="stopBtn" disabled>⏹️ Detener</button>
+    <div id="status">Estado: Listo</div>
+    <div id="output">El texto transcrito aparecerá aquí...</div>
+
+    <script>
+        let recognition;
+        let isRecording = false;
+
+        document.getElementById('startBtn').onclick = () => {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                document.getElementById('status').textContent = 'ERROR: Navegador no compatible';
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'es-ES';
+
+            let finalTranscript = '';
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('startBtn').classList.add('recording');
+                document.getElementById('status').textContent = 'Estado: Escuchando...';
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                document.getElementById('output').innerHTML = 
+                    '<strong>Final:</strong> ' + finalTranscript + 
+                    '<br><em>Temporal:</em> ' + interimTranscript;
+            };
+
+            recognition.onerror = (event) => {
+                document.getElementById('status').textContent = 'ERROR: ' + event.error;
+                stopRecognition();
+            };
+
+            recognition.onend = () => {
+                stopRecognition();
+            };
+
+            recognition.start();
+        };
+
+        document.getElementById('stopBtn').onclick = () => {
+            if (recognition) {
+                recognition.stop();
+            }
+        };
+
+        function stopRecognition() {
+            isRecording = false;
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('startBtn').classList.remove('recording');
+            document.getElementById('status').textContent = 'Estado: Detenido';
+        }
+    </script>
+</body>
+</html>

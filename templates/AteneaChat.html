@@ -354,6 +354,67 @@
             font-size: 16px;
         }
 
+        .disclaimer {
+            text-align: center;
+            padding: 12px 24px 16px 24px;
+            color: #8e8ea0;
+            font-size: 13px;
+            line-height: 1.4;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .voice-btn {
+            position: absolute;
+            right: 100px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #8e8ea0;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .voice-btn:hover {
+            background-color: #3f3f3f;
+            color: #4FC3F7;
+        }
+
+        .voice-btn.recording {
+            color: #ff4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+
+        .recording-indicator {
+            display: none;
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .recording-indicator.show {
+            display: block;
+        }
+
+
+
         .message.user .message-content {
             background: linear-gradient(135deg, #4FC3F7, #2196F3);
             border-color: #4FC3F7;
@@ -497,7 +558,7 @@
             background-color: #2f2f2f;
             border: 1px solid #3f3f3f;
             border-radius: 12px;
-            padding: 16px 60px 16px 50px;
+            padding: 16px 140px 16px 50px;
             color: #ececec;
             font-size: 16px;
             resize: none;
@@ -736,16 +797,23 @@
                         </div>
                         <button class="remove-file" onclick="removeFile()">×</button>
                     </div>
+
+
                     
                     <input type="file" id="fileInput" class="file-input" accept="image/*,.pdf,.doc,.docx,.txt,.json,.csv,.xls,.xlsx" onchange="handleFileSelect(event)">
                     
                     <button class="attach-btn" onclick="document.getElementById('fileInput').click()">
-                        📎
+                        📋
+                    </button>
+
+                    <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceRecording()">
+                        🎤
+                        <div class="recording-indicator" id="recordingIndicator">Escuchando...</div>
                     </button>
                     
                     <textarea 
                         class="chat-input" 
-                        placeholder="Escribe tu mensaje aquí..."
+                        placeholder="Escribe tu mensaje, adjunta un archivo o usa el micrófono para dictar..."
                         rows="1"
                         onkeydown="handleKeyPress(event)"
                         oninput="autoResize(this)"
@@ -753,6 +821,10 @@
                     <button class="send-btn" onclick="sendMessage()">
                         <i class="fas fa-paper-plane"></i>
                     </button>
+                </div>
+
+                <div class="disclaimer">
+                    Atenea puede cometer errores. Considera verificar la información importante.
                 </div>
             </div>
         </div>
@@ -763,6 +835,14 @@
         let conversationId = null;
         let isWaitingForResponse = false;
         let selectedFile = null;
+        
+        // Variables para grabación de audio
+        let mediaRecorder = null;
+        let isRecording = false;
+        let recordedAudio = null;
+        let audioChunks = [];
+        let recognition = null;
+        let isTranscribing = false;
 
         // Funciones para manejo de archivos
         function handleFileSelect(event) {
@@ -815,6 +895,119 @@
             });
         }
 
+        // Funciones para manejo de audio y transcripción
+        function toggleVoiceRecording() {
+            if (!isRecording) {
+                startVoiceRecognition();
+            } else {
+                stopVoiceRecognition();
+            }
+        }
+
+        function startVoiceRecognition() {
+            // Verificar soporte del navegador
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Tu navegador no soporta reconocimiento de voz. Prueba con Chrome o Edge.');
+                return;
+            }
+
+            try {
+                // Crear instancia de reconocimiento de voz
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                // Configurar reconocimiento
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'es-ES'; // Español
+                
+                let finalTranscript = '';
+                const input = document.querySelector('.chat-input');
+                
+                recognition.onstart = () => {
+                    isRecording = true;
+                    isTranscribing = true;
+                    
+                    // Actualizar UI
+                    const voiceBtn = document.getElementById('voiceBtn');
+                    const recordingIndicator = document.getElementById('recordingIndicator');
+                    voiceBtn.classList.add('recording');
+                    recordingIndicator.classList.add('show');
+                    recordingIndicator.textContent = 'Escuchando...';
+                };
+                
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    // Mostrar transcripción en tiempo real en el input
+                    input.value = finalTranscript + interimTranscript;
+                    autoResize(input);
+                };
+                
+                recognition.onerror = (event) => {
+                    console.error('Error en reconocimiento de voz:', event.error);
+                    let errorMsg = 'Error en el reconocimiento de voz';
+                    
+                    switch(event.error) {
+                        case 'no-speech':
+                            errorMsg = 'No se detectó voz. Intenta hablar más fuerte.';
+                            break;
+                        case 'audio-capture':
+                            errorMsg = 'No se pudo acceder al micrófono.';
+                            break;
+                        case 'not-allowed':
+                            errorMsg = 'Permisos de micrófono denegados.';
+                            break;
+                        case 'network':
+                            errorMsg = 'Error de red durante el reconocimiento.';
+                            break;
+                    }
+                    
+                    alert(errorMsg);
+                    stopVoiceRecognition();
+                };
+                
+                recognition.onend = () => {
+                    stopVoiceRecognition();
+                };
+                
+                // Iniciar reconocimiento
+                recognition.start();
+                
+            } catch (error) {
+                console.error('Error al inicializar reconocimiento de voz:', error);
+                alert('Error al acceder al reconocimiento de voz.');
+            }
+        }
+
+        function stopVoiceRecognition() {
+            if (recognition && isRecording) {
+                recognition.stop();
+                isRecording = false;
+                isTranscribing = false;
+                
+                // Actualizar UI
+                const voiceBtn = document.getElementById('voiceBtn');
+                const recordingIndicator = document.getElementById('recordingIndicator');
+                voiceBtn.classList.remove('recording');
+                recordingIndicator.classList.remove('show');
+                
+                recognition = null;
+            }
+        }
+
+
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.mobile-overlay');
@@ -860,7 +1053,7 @@
             // Preparar el mensaje a mostrar
             let displayText = message;
             if (selectedFile) {
-                displayText = (message ? message + '\n\n' : '') + `📎 ${selectedFile.name}`;
+                displayText = (message ? message + '\n\n' : '') + `📋 ${selectedFile.name}`;
             }
             
             // Mostrar mensaje del usuario
@@ -874,8 +1067,8 @@
                 
                 // Preparar el cuerpo de la petición
                 const requestBody = {
-                    chatInput: message,
-                    message: message,
+                    chatInput: message || '',
+                    message: message || '',
                     userId: '{{ usuario }}',
                     sessionId: conversationId || generateSessionId(),
                     timestamp: new Date().toISOString()
@@ -906,6 +1099,8 @@
                         return;
                     }
                 }
+
+
                 
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
@@ -1068,8 +1263,8 @@ Respuesta del servidor: ${responseText}`);
             
             // Procesar contenido para archivos adjuntos
             let processedContent = content;
-            if (type === 'user' && content.includes('📎')) {
-                const parts = content.split('📎');
+            if (type === 'user' && content.includes('📋')) {
+                const parts = content.split('📋');
                 if (parts.length > 1) {
                     const textPart = parts[0].trim();
                     const filePart = parts[1].trim();
@@ -1077,7 +1272,7 @@ Respuesta del servidor: ${responseText}`);
                     processedContent = textPart;
                     if (filePart) {
                         processedContent += `<div class="file-attachment">
-                            <span class="file-icon">📎</span>
+                            <span class="file-icon">📋</span>
                             <span>${filePart}</span>
                         </div>`;
                     }
