@@ -139,52 +139,6 @@ def home():
         return redirect(url_for('login'))
     return redirect(url_for('pagina_principal'))
 
-@app.route('/registro', methods=['GET', 'POST'])
-def registro():
-    if request.method == 'POST':
-        email = request.form['email']
-        contrasena = request.form['contrasena']
-        
-        # Generar nombre de usuario automáticamente desde el email
-        usuario = email.split('@')[0]
-
-        # Verificar si el correo ya está registrado
-        conn = get_db_connection()
-        existing_user = conn.execute('SELECT * FROM usuarios WHERE email = ?', (email,)).fetchone()
-        
-        if existing_user:
-            conn.close()
-            flash("El correo electrónico ya está registrado.")
-            return redirect(url_for('registro'))
-
-        # Verificar si el nombre de usuario ya existe y modificarlo si es necesario
-        existing_username = conn.execute('SELECT * FROM usuarios WHERE usuario = ?', (usuario,)).fetchone()
-        if existing_username:
-            counter = 1
-            original_usuario = usuario
-            while existing_username:
-                usuario = f"{original_usuario}{counter}"
-                existing_username = conn.execute('SELECT * FROM usuarios WHERE usuario = ?', (usuario,)).fetchone()
-                counter += 1
-
-        # Hashear la contraseña
-        hashed_password = bcrypt.generate_password_hash(contrasena).decode('utf-8')
-
-        # Insertar usuario en la base de datos
-        conn.execute('''
-            INSERT INTO usuarios (usuario, email, contrasena) 
-            VALUES (?, ?, ?)
-        ''', (usuario, email, hashed_password))
-        conn.commit()
-        conn.close()
-        
-        session['usuario'] = usuario
-        session['auth_method'] = 'local'  # Marcar método de autenticación
-        flash("¡Registro exitoso! Bienvenido a Atenea.", "success")
-        return redirect(url_for('pagina_principal'))
-
-    return render_template('register.html')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -207,33 +161,6 @@ def pagina_principal():
     
     if user_data:
         return render_template('AteneaChat.html', usuario=user_data['usuario'], email=user_data['email'])
-    else:
-        return redirect(url_for('login'))
-
-@app.route('/mi_perfil')
-def mi_perfil():
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
-    
-    usuario = session['usuario']
-    auth_method = session.get('auth_method', 'unknown')
-    
-    # Mapear método de autenticación a texto legible
-    auth_method_text = {
-        'google': 'Google OAuth',
-        'local': 'Cuenta Local',
-        'unknown': 'Desconocido'
-    }
-    
-    conn = get_db_connection()
-    user_data = conn.execute('SELECT * FROM usuarios WHERE usuario = ?', (usuario,)).fetchone()
-    conn.close()
-    
-    if user_data:
-        return render_template('mi_perfil.html', 
-                             usuario=user_data['usuario'], 
-                             email=user_data['email'],
-                             auth_method=auth_method_text.get(auth_method, 'Desconocido'))
     else:
         return redirect(url_for('login'))
 

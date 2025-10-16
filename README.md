@@ -9,7 +9,6 @@ Aplicación web de chat con inteligencia artificial integrada con n8n y Google G
 - ✅ **Interfaz moderna** y responsiva
 - ✅ **Integración con n8n** webhook
 - ✅ **Base de datos SQLite** para usuarios
-- ✅ **Registro con email/contraseña**
 - ✅ **Logo personalizado** en toda la aplicación
 - ✅ **Diseño azul** consistente
 
@@ -43,9 +42,7 @@ Atenea/
 │       └── logo2.png              # Logo de Atenea
 └── templates/
     ├── AteneaChat.html            # Interfaz principal del chat
-    ├── login.html                 # Página de inicio de sesión
-    ├── register.html              # Página de registro
-    └── mi_perfil.html             # Página de perfil de usuario
+    └── login.html                 # Página de inicio de sesión
 ```
 
 ## 🔧 Configuración n8n
@@ -70,7 +67,5 @@ El workflow debe incluir:
 
 - `/` - Redirige al chat si está autenticado
 - `/login` - Página de inicio de sesión
-- `/registro` - Página de registro
 - `/pagina_principal` - Chat principal de Atenea
-- `/mi_perfil` - Perfil del usuario
 - `/logout` - Cerrar sesión
