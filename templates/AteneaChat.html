@@ -6,7 +6,6 @@
     <title>Atenea - {{ usuario }}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
     <style>
         * {
             margin: 0;
@@ -113,7 +112,7 @@
         .user-avatar {
             width: 32px;
             height: 32px;
-            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            background: linear-gradient(135deg, #4FC3F7, #2196F3);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -200,9 +199,9 @@
         }
 
         .welcome-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            width: 120px;
+            height: 120px;
+            background: #000000;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -210,6 +209,12 @@
             margin-bottom: 24px;
             font-size: 32px;
             color: white;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        .welcome-icon img {
+            border-radius: 50%;
         }
 
         .welcome-title {
@@ -246,12 +251,12 @@
 
         .suggestion-card:hover {
             background-color: #3f3f3f;
-            border-color: #10a37f;
+            border-color: #4FC3F7;
         }
 
         .suggestion-icon {
             font-size: 20px;
-            color: #10a37f;
+            color: #4FC3F7;
             margin-bottom: 12px;
         }
 
@@ -266,6 +271,126 @@
             font-size: 14px;
             color: #8e8ea0;
             line-height: 1.4;
+        }
+
+        /* Messages Container */
+        .messages-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #4FC3F7, #2196F3);
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            color: white;
+        }
+
+        .message-content {
+            background-color: #2f2f2f;
+            border: 1px solid #3f3f3f;
+            border-radius: 12px;
+            padding: 16px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #4FC3F7, #2196F3);
+            border-color: #4FC3F7;
+            color: white;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #8e8ea0;
+            margin-top: 4px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px;
+            background-color: #2f2f2f;
+            border: 1px solid #3f3f3f;
+            border-radius: 12px;
+            max-width: 70%;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #8e8ea0;
+            border-radius: 50%;
+            animation: typingDot 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingDot {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            background-color: #4a1d1d;
+            border-color: #cc4444;
+            color: #ff6b6b;
         }
 
         /* Input Area */
@@ -296,7 +421,7 @@
         }
 
         .chat-input:focus {
-            border-color: #10a37f;
+            border-color: #4FC3F7;
         }
 
         .chat-input::placeholder {
@@ -308,7 +433,7 @@
             right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            background: #10a37f;
+            background: #4FC3F7;
             border: none;
             border-radius: 8px;
             width: 32px;
@@ -322,7 +447,7 @@
         }
 
         .send-btn:hover {
-            background: #0d8a6b;
+            background: #2196F3;
         }
 
         .send-btn:disabled {
@@ -472,14 +597,6 @@
                     <i class="fas fa-message"></i>
                     Conversación actual
                 </div>
-                <div class="chat-item">
-                    <i class="fas fa-message"></i>
-                    Consulta anterior
-                </div>
-                <div class="chat-item">
-                    <i class="fas fa-message"></i>
-                    Ayuda con perfil
-                </div>
             </div>
             
             <div class="sidebar-footer">
@@ -488,9 +605,8 @@
                         <div class="user-avatar">{{ usuario[0].upper() }}</div>
                         <div class="user-info">
                             <div class="user-name">{{ usuario }}</div>
-                            <div class="user-email">usuario@email.com</div>
+                            <div class="user-email">{{ email }}</div>
                         </div>
-                        <i class="fas fa-ellipsis-v"></i>
                     </div>
                     <div class="dropdown-content">
                         <a href="/mi_perfil"><i class="fas fa-user"></i> Mi Perfil</a>
@@ -517,50 +633,20 @@
                 </div>
             </div>
 
-            <div class="chat-container">
-                <div class="welcome-screen">
+            <div class="chat-container" id="chatContainer">
+                <div class="welcome-screen" id="welcomeScreen">
                     <div class="welcome-icon">
-                        <i class="fas fa-robot"></i>
+                        <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Atenehaz que el fionde de la imagen sea negroa Logo" style="width: 100%; height: 100%; object-fit: contain;">
                     </div>
                     <h1 class="welcome-title">¡Hola, {{ usuario }}!</h1>
                     <p class="welcome-subtitle">
                         Soy Atenea, tu asistente personal de inteligencia artificial. Puedo ayudarte con consultas sobre tu cuenta, 
                         gestión de perfil, y responder cualquier pregunta que tengas.
                     </p>
-                    
-                    <div class="suggestions">
-                        <div class="suggestion-card" onclick="sendSuggestion('¿Cómo puedo cambiar mi contraseña?')">
-                            <div class="suggestion-icon">
-                                <i class="fas fa-key"></i>
-                            </div>
-                            <div class="suggestion-title">Cambiar contraseña</div>
-                            <div class="suggestion-desc">Te ayudo a actualizar tu contraseña de forma segura</div>
-                        </div>
-                        
-                        <div class="suggestion-card" onclick="sendSuggestion('¿Cómo edito mi perfil?')">
-                            <div class="suggestion-icon">
-                                <i class="fas fa-user-edit"></i>
-                            </div>
-                            <div class="suggestion-title">Editar perfil</div>
-                            <div class="suggestion-desc">Modifica la información de tu cuenta</div>
-                        </div>
-                        
-                        <div class="suggestion-card" onclick="sendSuggestion('¿Qué funciones están disponibles?')">
-                            <div class="suggestion-icon">
-                                <i class="fas fa-question-circle"></i>
-                            </div>
-                            <div class="suggestion-title">Funciones disponibles</div>
-                            <div class="suggestion-desc">Conoce todas las características de la plataforma</div>
-                        </div>
-                        
-                        <div class="suggestion-card" onclick="sendSuggestion('¿Cómo puedo contactar soporte?')">
-                            <div class="suggestion-icon">
-                                <i class="fas fa-headset"></i>
-                            </div>
-                            <div class="suggestion-title">Contactar soporte</div>
-                            <div class="suggestion-desc">Obtén ayuda adicional de nuestro equipo</div>
-                        </div>
-                    </div>
+                </div>
+                
+                <div class="messages-container" id="messagesContainer" style="display: none;">
+                    <!-- Los mensajes aparecerán aquí -->
                 </div>
             </div>
 
@@ -582,6 +668,10 @@
     </div>
 
     <script>
+        const WEBHOOK_URL = 'https://apps.alico-sa.com/webhook/6dfbf8bb-a111-43a3-a00f-1c2d6b6379a9/chat';
+        let conversationId = null;
+        let isWaitingForResponse = false;
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.mobile-overlay');
@@ -593,7 +683,15 @@
         }
 
         function startNewChat() {
-            // Aquí podrías agregar lógica para iniciar una nueva conversación
+            // Limpiar la conversación actual
+            conversationId = null;
+            const messagesContainer = document.getElementById('messagesContainer');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            
+            messagesContainer.innerHTML = '';
+            messagesContainer.style.display = 'none';
+            welcomeScreen.style.display = 'flex';
+            
             console.log('Nueva conversación iniciada');
         }
 
@@ -603,15 +701,238 @@
             sendMessage();
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             const input = document.querySelector('.chat-input');
             const message = input.value.trim();
             
-            if (message) {
-                console.log('Enviando mensaje:', message);
-                // Aquí el chat de n8n manejará el mensaje
-                input.value = '';
-                autoResize(input);
+            if (!message || isWaitingForResponse) return;
+            
+            // Limpiar input
+            input.value = '';
+            autoResize(input);
+            
+            // Ocultar pantalla de bienvenida y mostrar mensajes
+            hideWelcomeScreen();
+            
+            // Mostrar mensaje del usuario
+            displayMessage(message, 'user');
+            
+            // Mostrar indicador de escritura
+            showTypingIndicator();
+            
+            try {
+                isWaitingForResponse = true;
+                
+                // Formato específico para n8n workflow con AI Agent
+                const requestBody = {
+                    chatInput: message,
+                    message: message,
+                    userId: '{{ usuario }}',
+                    sessionId: conversationId || generateSessionId(),
+                    timestamp: new Date().toISOString()
+                };
+                
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'User-Agent': 'Atenea-Chat/1.0',
+                        'Origin': window.location.origin
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const responseText = await response.text();
+
+                if (!response.ok) {
+                    if (response.status === 500) {
+                        throw new Error(`Error 500 en n8n workflow. Posibles causas:
+1. El nodo AI Agent no está configurado correctamente
+2. Falta configuración en Google Gemini
+3. El nodo Webhook no está devolviendo respuesta
+4. Error en el Structured Output Parser
+
+Respuesta del servidor: ${responseText}`);
+                    } else if (response.status === 404) {
+                        throw new Error('Webhook no encontrado. Verifica que el workflow esté activo y la URL sea correcta.');
+                    } else {
+                        throw new Error(`Error HTTP ${response.status}: ${response.statusText}\nRespuesta: ${responseText}`);
+                    }
+                }
+
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (parseError) {
+                    // Si no es JSON, asumimos que es la respuesta directa del modelo
+                    data = { output: responseText };
+                }
+                
+                // Actualizar sessionId/conversationId
+                if (data.sessionId) {
+                    conversationId = data.sessionId;
+                } else if (data.conversationId) {
+                    conversationId = data.conversationId;
+                } else if (!conversationId) {
+                    conversationId = generateSessionId();
+                }
+                
+                // Ocultar indicador de escritura
+                hideTypingIndicator();
+                
+                // Buscar la respuesta en diferentes campos posibles de n8n
+                const assistantResponse = data.output ||
+                                        data.response ||
+                                        data.result ||
+                                        data.text ||
+                                        data.content ||
+                                        data.answer ||
+                                        data.message ||
+                                        (typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+                
+                if (assistantResponse && assistantResponse.trim()) {
+                    displayMessage(assistantResponse, 'assistant');
+                } else {
+                    displayMessage('Recibí una respuesta pero está vacía. Verifica la configuración del workflow.', 'assistant', true);
+                }
+                
+            } catch (error) {
+                hideTypingIndicator();
+                
+                let errorMessage = 'Lo siento, hubo un error al procesar tu mensaje.';
+                
+                if (error.message.includes('500')) {
+                    errorMessage = 'Error en el workflow de n8n. Revisa la configuración del AI Agent y Google Gemini.';
+                } else if (error.message.includes('404')) {
+                    errorMessage = 'Webhook no encontrado. ¿Está activo el workflow?';
+                } else if (error.message.includes('CORS')) {
+                    errorMessage = 'Error CORS. Habilita CORS en el nodo Webhook de n8n.';
+                } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Error de conexión. Verifica la URL del webhook.';
+                }
+                
+                displayMessage(errorMessage, 'assistant', true);
+                
+                // Mostrar ayuda específica para tu workflow
+                setTimeout(() => {
+                    displayMessage(`� Checklist para tu workflow n8n:
+
+✅ **Webhook Node:**
+- Método: POST
+- CORS habilitado
+- Respuesta activada
+
+✅ **AI Agent Node:**
+- Google Gemini configurado
+- Input field mapeado correctamente
+- Conexión válida con la API
+
+✅ **Message a Model Node:**
+- Configurado para devolver respuesta
+- Output format correcto
+
+✅ **Structured Output Parser:**
+- Schema definido
+- Conexión correcta
+
+📋 **Datos que se envían:**
+\`\`\`json
+{
+  "chatInput": "mensaje",
+  "message": "mensaje", 
+  "userId": "${'{{ usuario }}'}",
+  "sessionId": "id_unico"
+}
+\`\`\``, 'assistant');
+                }, 1000);
+            } finally {
+                isWaitingForResponse = false;
+            }
+        }
+
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function hideWelcomeScreen() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const messagesContainer = document.getElementById('messagesContainer');
+            
+            if (welcomeScreen.style.display !== 'none') {
+                welcomeScreen.style.display = 'none';
+                messagesContainer.style.display = 'flex';
+            }
+        }
+
+        function displayMessage(content, type, isError = false) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'user' ? '{{ usuario[0].upper() }}' : 'A';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = `message-content ${isError ? 'error-message' : ''}`;
+            messageContent.innerHTML = formatMessage(content);
+            
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            messageTime.textContent = new Date().toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageContent.appendChild(messageTime);
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function formatMessage(content) {
+            // Formatear mensaje básico (puedes expandir esto para markdown, etc.)
+            return content.replace(/\n/g, '<br>');
+        }
+
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typingIndicator';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'A';
+            
+            const typingContent = document.createElement('div');
+            typingContent.className = 'typing-indicator';
+            typingContent.innerHTML = `
+                <span>Atenea está escribiendo</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            
+            typingDiv.appendChild(avatar);
+            typingDiv.appendChild(typingContent);
+            messagesContainer.appendChild(typingDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
             }
         }
 
@@ -634,14 +955,11 @@
                 document.querySelector('.mobile-overlay').classList.remove('active');
             }
         });
-    </script>
 
-    <!-- Chat de n8n -->
-    <script type="module">
-        import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
-
-        createChat({
-            webhookUrl: 'https://apps.alico-sa.com/webhook/6dfbf8bb-a111-43a3-a00f-1c2d6b6379a9/chat'
+        // Inicializar chat
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Chat Atenea inicializado');
+            console.log('Webhook URL:', WEBHOOK_URL);
         });
     </script>
 </body>
