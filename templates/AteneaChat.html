@@ -256,6 +256,7 @@
             padding: 24px;
             display: flex;
             flex-direction: column;
+            scroll-behavior: smooth;
         }
 
         .welcome-screen {
@@ -1363,6 +1364,12 @@
             // Mostrar mensaje del usuario
             displayMessage(displayText, 'user');
             
+            // Auto-scroll inmediato después de enviar mensaje del usuario
+            const chatContainer = document.getElementById('chatContainer');
+            requestAnimationFrame(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+            
             // Limpiar archivo seleccionado inmediatamente después de mostrar el mensaje
             if (selectedFile) {
                 removeFile();
@@ -1597,8 +1604,15 @@ Respuesta del servidor: ${responseText}`);
             
             messagesContainer.appendChild(messageDiv);
             
-            // Scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Auto-scroll mejorado y confiable
+            requestAnimationFrame(() => {
+                const chatContainer = document.getElementById('chatContainer');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                // Segundo intento para asegurar que funcione
+                setTimeout(() => {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 100);
+            });
         }
 
         function formatMessage(content) {
@@ -1636,8 +1650,15 @@ Respuesta del servidor: ${responseText}`);
             typingDiv.appendChild(typingContent);
             messagesContainer.appendChild(typingDiv);
             
-            // Scroll to bottom
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Auto-scroll mejorado para indicador de escritura
+            requestAnimationFrame(() => {
+                const chatContainer = document.getElementById('chatContainer');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                // Segundo intento para asegurar que funcione
+                setTimeout(() => {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 100);
+            });
         }
 
         function hideTypingIndicator() {
