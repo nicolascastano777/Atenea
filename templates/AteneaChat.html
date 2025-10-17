@@ -505,10 +505,11 @@
             align-items: center;
             gap: 8px;
             padding: 16px;
-            background-color: #2f2f2f;
-            border: 1px solid #3f3f3f;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             max-width: 70%;
+            color: var(--text-secondary);
         }
 
         .typing-dots {
@@ -519,13 +520,24 @@
         .typing-dot {
             width: 6px;
             height: 6px;
-            background-color: #8e8ea0;
+            background-color: var(--text-secondary);
             border-radius: 50%;
             animation: typingDot 1.4s infinite ease-in-out;
         }
 
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Estilos específicos para el indicador de escritura en tema claro */
+        [data-theme="light"] .typing-indicator {
+            background-color: #f5f5f5 !important;
+            border: 1px solid #e0e0e0 !important;
+            color: #666666 !important;
+        }
+
+        [data-theme="light"] .typing-dot {
+            background-color: #666666 !important;
+        }
 
         @keyframes typingDot {
             0%, 80%, 100% {
@@ -660,6 +672,12 @@
 
         .chat-input:focus {
             border-color: var(--accent-color);
+        }
+
+        .chat-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: var(--bg-quaternary);
         }
 
         .chat-input::placeholder {
@@ -816,6 +834,143 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #4f4f4f;
         }
+
+        /* Alerta personalizada de la aplicación */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            display: none;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Overlay específico para tema claro */
+        [data-theme="light"] .custom-alert-overlay {
+            background: rgba(0,0,0,0.5) !important;
+        }
+
+        .custom-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-color);
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            z-index: 10000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: none;
+            transition: transform 0.2s ease;
+        }
+
+        /* Estilos específicos para tema claro */
+        [data-theme="light"] .custom-alert {
+            background: #ffffff !important;
+            border: 2px solid #1976D2 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+        }
+
+        [data-theme="light"] .custom-alert-content {
+            color: #212121 !important;
+        }
+
+        [data-theme="light"] .custom-alert-header {
+            color: #1976D2 !important;
+        }
+
+        [data-theme="light"] .custom-alert-examples {
+            background: #f5f5f5 !important;
+            border: 1px solid #e0e0e0 !important;
+        }
+
+        [data-theme="light"] .custom-alert-examples strong {
+            color: #1976D2 !important;
+        }
+
+        [data-theme="light"] .custom-alert-examples li {
+            color: #666666 !important;
+        }
+
+        .custom-alert-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .custom-alert-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .custom-alert-content {
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .custom-alert-examples {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .custom-alert-examples strong {
+            color: var(--accent-color);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .custom-alert-examples ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+
+        .custom-alert-examples li {
+            margin: 3px 0;
+            color: var(--text-secondary);
+        }
+
+        .custom-alert-button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-alert-button:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Botón específico para tema claro */
+        [data-theme="light"] .custom-alert-button {
+            background: #1976D2 !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="light"] .custom-alert-button:hover {
+            background: #1565C0 !important;
+        }
     </style>
 </head>
 <body>
@@ -895,7 +1050,7 @@
                     
                     <input type="file" id="fileInput" class="file-input" accept="image/*,.pdf,.doc,.docx,.txt,.json,.csv,.xls,.xlsx" onchange="handleFileSelect(event)">
                     
-                    <button class="attach-btn" onclick="document.getElementById('fileInput').click()">
+                    <button class="attach-btn" onclick="if(!this.disabled) document.getElementById('fileInput').click()">
                         📋
                     </button>
 
@@ -909,7 +1064,7 @@
                         placeholder="Escribe tu mensaje, adjunta un archivo o usa el micrófono"
                         rows="1"
                         onkeydown="handleKeyPress(event)"
-                        oninput="autoResize(this)"
+                        oninput="autoResize(this); onInputChange()"
                     ></textarea>
                     <button class="send-btn" onclick="sendMessage()">
                         <i class="fas fa-paper-plane"></i>
@@ -924,7 +1079,7 @@
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://apps.alico-sa.com/webhook/6dfbf8bb-a111-43a3-a00f-1c2d6b6379a9/chat';
+        const WEBHOOK_URL = 'https://apps.alico-sa.com/webhook/c9c17de0-ea1a-496f-880d-bb5419851d9d/chat';
         let conversationId = null;
         let isWaitingForResponse = false;
         let selectedFile = null;
@@ -939,6 +1094,9 @@
 
         // Funciones para manejo de archivos
         function handleFileSelect(event) {
+            // Verificar si el input está deshabilitado
+            if (event.target.disabled) return;
+            
             const file = event.target.files[0];
             if (file) {
                 // Verificar tamaño máximo (10MB)
@@ -962,6 +1120,9 @@
             fileSize.textContent = formatFileSize(file.size);
             
             preview.classList.add('show');
+            
+            // Validar estado del envío
+            validateSendState();
         }
 
         function removeFile() {
@@ -969,6 +1130,9 @@
             const preview = document.getElementById('filePreview');
             preview.classList.remove('show');
             document.getElementById('fileInput').value = '';
+            
+            // Validar estado del envío
+            validateSendState();
         }
 
         function formatFileSize(bytes) {
@@ -988,8 +1152,41 @@
             });
         }
 
+        // Función para validar el estado del envío
+        function validateSendState() {
+            const input = document.querySelector('.chat-input');
+            const sendBtn = document.querySelector('.send-btn');
+            const message = input.value.trim();
+            
+            if (selectedFile && !message) {
+                // Hay archivo pero no mensaje - estado de advertencia
+                sendBtn.style.background = '#ff9800'; // Color naranja de advertencia
+                sendBtn.title = 'Debes agregar una instrucción para enviar el archivo';
+                input.placeholder = 'Escribe una instrucción para el archivo...';
+            } else if (message || selectedFile) {
+                // Hay contenido válido - estado normal
+                sendBtn.style.background = 'var(--accent-color)';
+                sendBtn.title = 'Enviar mensaje';
+                input.placeholder = 'Escribe tu mensaje, adjunta un archivo o usa el micrófono';
+            } else {
+                // No hay contenido - estado deshabilitado
+                sendBtn.style.background = 'var(--bg-quaternary)';
+                sendBtn.title = 'Escribe un mensaje o adjunta un archivo';
+                input.placeholder = 'Escribe tu mensaje, adjunta un archivo o usa el micrófono';
+            }
+        }
+
+        // Función para actualizar el estado cuando cambia el input
+        function onInputChange() {
+            validateSendState();
+        }
+
         // Funciones para manejo de audio y transcripción
         function toggleVoiceRecording() {
+            // Verificar si el botón está deshabilitado
+            const voiceBtn = document.getElementById('voiceBtn');
+            if (voiceBtn && voiceBtn.disabled) return;
+            
             if (!isRecording) {
                 startVoiceRecognition();
             } else {
@@ -1134,9 +1331,23 @@
             const input = document.querySelector('.chat-input');
             const message = input.value.trim();
             
-            if ((!message && !selectedFile) || isWaitingForResponse) return;
+            // Verificar si el input está deshabilitado o si ya estamos esperando respuesta
+            if (input.disabled || isWaitingForResponse) return;
             
-            // Limpiar input
+            // Validar que haya contenido para enviar
+            if (!message && !selectedFile) return;
+            
+            // Si hay un archivo pero no hay mensaje, mostrar alerta personalizada
+            if (selectedFile && !message) {
+                showCustomAlert();
+                return;
+            }
+            
+            // Bloquear la barra de chat inmediatamente
+            isWaitingForResponse = true;
+            disableChatInput();
+            
+            // Limpiar input y reiniciar
             input.value = '';
             autoResize(input);
             
@@ -1152,17 +1363,21 @@
             // Mostrar mensaje del usuario
             displayMessage(displayText, 'user');
             
+            // Limpiar archivo seleccionado inmediatamente después de mostrar el mensaje
+            if (selectedFile) {
+                removeFile();
+            }
+            
             // Mostrar indicador de escritura
             showTypingIndicator();
             
             try {
-                isWaitingForResponse = true;
-                
                 // Preparar el cuerpo de la petición
                 const requestBody = {
                     chatInput: message || '',
                     message: message || '',
-                    userId: '{{ usuario }}',
+                    userId: '{{ email }}',
+                    name: '{{ usuario }}',
                     sessionId: conversationId || generateSessionId(),
                     timestamp: new Date().toISOString()
                 };
@@ -1189,12 +1404,11 @@
                         hideTypingIndicator();
                         displayMessage('Error al procesar el archivo. Por favor intenta de nuevo.', 'bot');
                         isWaitingForResponse = false;
+                        enableChatInput(); // Habilitar chat después del error
                         return;
                     }
                 }
 
-
-                
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: {
@@ -1260,11 +1474,6 @@ Respuesta del servidor: ${responseText}`);
                     displayMessage('Recibí una respuesta pero está vacía. Verifica la configuración del workflow.', 'assistant', true);
                 }
                 
-                // Limpiar archivo seleccionado después del envío exitoso
-                if (selectedFile) {
-                    removeFile();
-                }
-                
             } catch (error) {
                 hideTypingIndicator();
                 
@@ -1316,6 +1525,7 @@ Respuesta del servidor: ${responseText}`);
                 }, 1000);
             } finally {
                 isWaitingForResponse = false;
+                enableChatInput(); // Habilitar el chat nuevamente
             }
         }
 
@@ -1437,7 +1647,92 @@ Respuesta del servidor: ${responseText}`);
             }
         }
 
+        // Funciones para bloquear/desbloquear la barra de chat
+        function disableChatInput() {
+            const input = document.querySelector('.chat-input');
+            const sendBtn = document.querySelector('.send-btn');
+            const attachBtn = document.querySelector('.attach-btn');
+            const voiceBtn = document.getElementById('voiceBtn');
+            const fileInput = document.getElementById('fileInput');
+            
+            if (input) {
+                input.disabled = true;
+                input.placeholder = 'Atenea está respondiendo...';
+                input.style.opacity = '0.6';
+                input.style.cursor = 'not-allowed';
+            }
+            
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = '0.6';
+                sendBtn.style.cursor = 'not-allowed';
+            }
+            
+            if (attachBtn) {
+                attachBtn.disabled = true;
+                attachBtn.style.opacity = '0.6';
+                attachBtn.style.cursor = 'not-allowed';
+            }
+            
+            if (voiceBtn) {
+                voiceBtn.disabled = true;
+                voiceBtn.style.opacity = '0.6';
+                voiceBtn.style.cursor = 'not-allowed';
+            }
+            
+            if (fileInput) {
+                fileInput.disabled = true;
+            }
+        }
+
+        function enableChatInput() {
+            const input = document.querySelector('.chat-input');
+            const sendBtn = document.querySelector('.send-btn');
+            const attachBtn = document.querySelector('.attach-btn');
+            const voiceBtn = document.getElementById('voiceBtn');
+            const fileInput = document.getElementById('fileInput');
+            
+            if (input) {
+                input.disabled = false;
+                input.style.opacity = '1';
+                input.style.cursor = 'text';
+                input.focus(); // Enfocar el input para facilitar la escritura
+            }
+            
+            if (sendBtn) {
+                sendBtn.disabled = false;
+                sendBtn.style.opacity = '1';
+                sendBtn.style.cursor = 'pointer';
+            }
+            
+            if (attachBtn) {
+                attachBtn.disabled = false;
+                attachBtn.style.opacity = '1';
+                attachBtn.style.cursor = 'pointer';
+            }
+            
+            if (voiceBtn) {
+                voiceBtn.disabled = false;
+                voiceBtn.style.opacity = '1';
+                voiceBtn.style.cursor = 'pointer';
+            }
+            
+            if (fileInput) {
+                fileInput.disabled = false;
+            }
+            
+            // Validar estado del envío
+            validateSendState();
+        }
+
         function handleKeyPress(event) {
+            // Verificar si el input está deshabilitado
+            const input = document.querySelector('.chat-input');
+            if (input && input.disabled) {
+                event.preventDefault();
+                return false;
+            }
+            
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
                 sendMessage();
@@ -1518,6 +1813,33 @@ Respuesta del servidor: ${responseText}`);
             themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
         }
 
+        // Funciones para alerta personalizada
+        function showCustomAlert() {
+            const overlay = document.getElementById('customAlertOverlay');
+            const alert = document.getElementById('customAlert');
+            
+            overlay.style.display = 'block';
+            alert.style.display = 'block';
+            
+            // Enfocar el input después de un momento
+            setTimeout(() => {
+                const input = document.getElementById('messageInput');
+                if (input) input.focus();
+            }, 100);
+        }
+
+        function closeCustomAlert() {
+            const overlay = document.getElementById('customAlertOverlay');
+            const alert = document.getElementById('customAlert');
+            
+            overlay.style.display = 'none';
+            alert.style.display = 'none';
+            
+            // Enfocar el input para que el usuario escriba
+            const input = document.getElementById('messageInput');
+            if (input) input.focus();
+        }
+
         function initTheme() {
             const savedTheme = localStorage.getItem('theme');
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -1537,7 +1859,31 @@ Respuesta del servidor: ${responseText}`);
             
             // Crear favicon con fondo negro
             createBlackBackgroundFavicon();
+            
+            // Validar estado inicial del envío
+            validateSendState();
         });
     </script>
+
+    <!-- Alerta personalizada -->
+    <div class="custom-alert-overlay" id="customAlertOverlay" onclick="closeCustomAlert()"></div>
+    <div class="custom-alert" id="customAlert">
+        <div class="custom-alert-header">
+            <span class="custom-alert-icon">⚠️</span>
+            Instrucción requerida
+        </div>
+        <div class="custom-alert-content">
+            Debes agregar una instrucción para enviar el archivo
+            <div class="custom-alert-examples">
+                <strong>Ejemplos:</strong>
+                <ul>
+                    <li>"Analiza este documento"</li>
+                    <li>"¿Qué contiene esta imagen?"</li>
+                    <li>"Resume este archivo"</li>
+                </ul>
+            </div>
+        </div>
+        <button class="custom-alert-button" onclick="closeCustomAlert()">Entendido</button>
+    </div>
 </body>
 </html>
